@@ -6,7 +6,7 @@ if (-not (Test-Path $directory)) {
     New-Item -Path $directory -ItemType Directory
 }
 
-$amount = 2
+$amount = 3000
 
 # Create an array to store job results
 $jobs = @()
