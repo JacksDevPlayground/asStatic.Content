@@ -6,33 +6,23 @@ if (-not (Test-Path $directory)) {
     New-Item -Path $directory -ItemType Directory
 }
 
-# Function to generate a random identifier
-function Generate-RandomIdentifier {
-    return -join ((65..90) + (97..122) | Get-Random -Count 24 | % { [char]$_ })
-}
+$amount = 2
 
-# Function to generate a random title
-function Generate-RandomTitle {
-    $adjectives = @("Dynamic", "Innovative", "Modern", "Classic", "Strategic", "Efficient")
-    $nouns = @("Rule", "Solution", "Strategy", "Approach", "Method", "Technique")
+# Create an array to store job results
+$jobs = @()
 
-    return ($adjectives | Get-Random) + " " + ($nouns | Get-Random)
-}
-
-$amount = 3000
-
-# Loop to create 3000 files
-for ($i=1; $i -le $amount; $i++) {
-    # Generate a random identifier and title
-    $randomIdentifier = Generate-RandomIdentifier
-    $randomTitle = Generate-RandomTitle + " " + $i
-    $slug = $randomTitle -replace '\s+', '-'
+# ScriptBlock for the job
+$scriptBlock = {
+    param ($i)
+    $directory = "C:\Users\jpr17\src\temp\asStatic.Content\content\rules"
+    $title = "Rule $i"
+    $slug = "rule-$i"
 
     # Define the content of the file
     $content = @"
 ---
-title: $randomTitle
-identifier: $randomIdentifier
+title: $title
+identifier: rule-$i
 ---
 # Heading 1
 
@@ -53,6 +43,20 @@ identifier: $randomIdentifier
 
     # Create the index.mdoc file inside the slug directory with the defined content
     $content | Out-File -Path "$postDirectory\index.mdoc"
+}
+
+# Loop to create 3000 files
+for ($i=1; $i -le $amount; $i++) {
+    $jobs += Start-Job -ScriptBlock $scriptBlock -ArgumentList $i
+}
+
+# Wait for all jobs to complete
+$jobs | Wait-Job
+
+# Display results
+$jobs | ForEach-Object {
+    Receive-Job -Job $_
+    Remove-Job -Job $_
 }
 
 Write-Output "$amount index.mdoc files created successfully!"
