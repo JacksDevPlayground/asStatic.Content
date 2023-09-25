@@ -6,7 +6,7 @@ if (-not (Test-Path $directory)) {
     New-Item -Path $directory -ItemType Directory
 }
 
-$amount = 3000
+$amount = 1000
 
 # Create an array to store job results
 $jobs = @()
@@ -23,6 +23,7 @@ $scriptBlock = {
 ---
 title: $title
 identifier: rule-$i
+lastUpdated: "2023-09-20T06:52:30.676Z"
 ---
 # Heading 1
 
@@ -35,6 +36,10 @@ identifier: rule-$i
 ![](a.png)
 "@
 
+    $blurb = @"
+In any organization that juggles multiple projects, having clear coordination and allocation of resources is essential. 
+"@
+
     # Create a directory for the slug
     $postDirectory = Join-Path -Path $directory -ChildPath $slug
     if (-not (Test-Path $postDirectory)) {
@@ -43,6 +48,8 @@ identifier: rule-$i
 
     # Create the index.mdoc file inside the slug directory with the defined content
     $content | Out-File -Path "$postDirectory\index.mdoc"
+    $blurb | Out-File -Path "$postDirectory\blurb.mdoc"
+
 }
 
 # Loop to create 3000 files
